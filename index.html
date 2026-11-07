@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yamir Studio - Reportes</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
+        body{background:#0d1117;color:#e6edf3;padding:12px;max-width:480px;margin:0 auto}
+        .banner{background:#161b22;border:1px solid #ffd700;color:#ffd700;text-align:center;padding:10px;border-radius:8px;font-weight:700;margin-bottom:12px;font-size:1.1rem}
+        .btn-group{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+        .btn{padding:12px;border-radius:6px;font-weight:700;border:none;cursor:pointer;text-align:center;text-decoration:none;font-size:.9rem;transition:transform .1s,opacity .1s}
+        .btn:active{transform:scale(.96);opacity:.85}
+        .btn-red{background:#da3633;color:#fff}
+        .btn-gray{background:#21262d;color:#c9d1d9;border:1px solid #30363d}
+        .tabs{display:flex;gap:6px;margin-bottom:12px}
+        .tab-btn{flex:1;padding:10px;background:#21262d;color:#8b949e;border:1px solid #30363d;border-radius:6px;font-weight:700;cursor:pointer;transition:transform .1s}
+        .tab-btn:active{transform:scale(.96)}
+        .tab-btn.active{background:#238636;color:#fff;border-color:#2ea043}
+        .tab-btn.active-prem{background:#d29922;color:#000;border-color:#ffd700}
+        .card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px;margin-bottom:10px;text-align:center;cursor:pointer;transition:transform .1s}
+        .card:active{transform:scale(.97)}
+        .card img{width:100%;height:160px;object-fit:cover;border-radius:6px;margin-bottom:8px;display:block;background:#0d1117}
+        .card-title{font-weight:700;font-size:.95rem;margin-bottom:6px;color:#f0f6fc}
+        .badge{display:inline-block;padding:3px 8px;border-radius:12px;font-size:.7rem;font-weight:700}
+        .badge-norm{background:rgba(46,160,67,.2);color:#3fb950;border:1px solid #2ea043}
+        .badge-prem{background:rgba(212,167,44,.2);color:#f2cc60;border:1px solid #d29922}
+        .badge-rep{background:rgba(218,54,51,.2);color:#f85149;border:1px solid #da3633;margin-top:6px;display:block;padding:4px;border-radius:4px;font-size:.75rem}
+        
+        /* FORMULARIO DE REPORTES Y GRID EN 2 COLUMNAS */
+        .report-box{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;margin-top:10px}
+        .severity-tabs{display:flex;gap:6px;margin-bottom:4px}
+        .sev-btn{flex:1;padding:10px 4px;font-size:.85rem;font-weight:700;border-radius:6px;border:1px solid #30363d;cursor:pointer;background:#0d1117;color:#8b949e;text-align:center}
+        .sev-btn.red.active{background:rgba(248,81,73,.2);color:#f85149;border-color:#f85149}
+        .sev-btn.yellow.active{background:rgba(210,153,34,.2);color:#d29922;border-color:#d29922}
+        .sev-btn.green.active{background:rgba(46,160,67,.2);color:#3fb950;border-color:#2ea043}
+        
+        .option-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .option-btn{background:#0d1117;border:1px solid #30363d;color:#c9d1d9;padding:12px 10px;border-radius:8px;font-weight:700;cursor:pointer;text-align:center;font-size:.9rem;line-height:1.2;display:flex;align-items:center;justify-content:center;min-height:64px;transition:transform .1s,border-color .1s,background-color .1s}
+        .option-btn:active{transform:scale(.95)}
+        .option-btn.selected-red{border-color:#f85149;color:#fff;background:#da3633;box-shadow:0 0 8px rgba(248,81,73,.4)}
+        .option-btn.selected-yellow{border-color:#ffd700;color:#000;background:#d29922;box-shadow:0 0 8px rgba(210,153,34,.4)}
+        .option-btn.selected-green{border-color:#2ea043;color:#fff;background:#238636;box-shadow:0 0 8px rgba(46,160,67,.4)}
+
+        /* CAMPO DE TEXTO OPCIONAL */
+        .details-area{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+        textarea{width:100%;background:#0d1117;border:1px solid #30363d;color:#f0f6fc;padding:10px;border-radius:6px;font-size:.85rem;resize:vertical;min-height:90px;outline:none}
+        textarea:focus{border-color:#58a6ff}
+        .hidden{display:none!important}
+    </style>
+</head>
+<body>
+
+    <!-- LISTA PRINCIPAL PARA ELEGIR SCRIPT A REPORTAR -->
+    <div id="app-screen">
+        <div class="banner">YAMIR STUDIO - REPORTES</div>
+
+        <div class="btn-group">
+            <a href="javascript:history.back()" class="btn btn-gray">← VOLVER A PÁGINA PRINCIPAL</a>
+        </div>
+
+        <div class="tabs">
+            <button id="tb-free" class="tab-btn active" onclick="switchTab('free')">NORMAL</button>
+            <button id="tb-prem" class="tab-btn" onclick="switchTab('prem')">PREMIUM ⭐</button>
+        </div>
+
+        <div id="list-free"></div>
+        <div id="list-prem" class="hidden"></div>
+    </div>
+
+    <!-- PANTALLA DEL FORMULARIO DE REPORTES -->
+    <div id="report-screen" class="hidden">
+        <div class="banner">YAMIR STUDIO - FORMULARIO</div>
+        <button class="btn btn-gray" style="width:100%" onclick="closeReport()">← Cancelar / Volver</button>
+        
+        <div class="report-box">
+            <h3 id="rep-title" style="text-align:center;color:#f0f6fc">Reportar Script</h3>
+            <p style="color:#8b949e;font-size:.8rem;text-align:center">Selecciona una categoría y toca una opción:</p>
+
+            <!-- PESTAÑAS DE SEVERIDAD -->
+            <div class="severity-tabs">
+                <button id="sev-red" class="sev-btn red active" onclick="switchSev('red')">🔴 Crítico</button>
+                <button id="sev-yellow" class="sev-btn yellow" onclick="switchSev('yellow')">🟡 Uso</button>
+                <button id="sev-green" class="sev-btn green" onclick="switchSev('green')">🟢 Opinión</button>
+            </div>
+
+            <!-- OPCIONES EN 2 COLUMNAS (5 POR CATEGORÍA) -->
+            <div id="grid-red" class="option-grid">
+                <button class="option-btn" onclick="selectOpt(this, '🔴 [CRÍTICO] Baneo permanente por usar el script', 'red')">1. Baneo permanente</button>
+                <button class="option-btn" onclick="selectOpt(this, '🔴 [CRÍTICO] Script totalmente parcheado', 'red')">2. Totalmente parcheado</button>
+                <button class="option-btn" onclick="selectOpt(this, '🔴 [CRÍTICO] Creador abandonó el script', 'red')">3. Creador lo abandonó</button>
+                <button class="option-btn" onclick="selectOpt(this, '🔴 [CRÍTICO] El script hace que el juego se cierre (crash)', 'red')">4. Provoca cierre / crash</button>
+                <button class="option-btn" onclick="selectOpt(this, '🔴 [CRÍTICO] Congela el juego al intentar cargar', 'red')">5. Congela el juego</button>
+            </div>
+
+            <div id="grid-yellow" class="option-grid hidden">
+                <button class="option-btn" onclick="selectOpt(this, '🟡 [USO] No funciona en mi ejecutor', 'yellow')">1. No sirve en ejecutor</button>
+                <button class="option-btn" onclick="selectOpt(this, '🟡 [USO] Algunas funciones no se activan', 'yellow')">2. Funciones inactivas</button>
+                <button class="option-btn" onclick="selectOpt(this, '🟡 [USO] El script da mucho lag al usarlo', 'yellow')">3. Causa mucho lag</button>
+                <button class="option-btn" onclick="selectOpt(this, '🟡 [USO] La interfaz (menú) se ve bugeada', 'yellow')">4. Interfaz bugeada</button>
+                <button class="option-btn" onclick="selectOpt(this, '🟡 [USO] Se apaga solo a mitad de partida', 'yellow')">5. Se apaga solo</button>
+            </div>
+
+            <div id="grid-green" class="option-grid hidden">
+                <button class="option-btn" onclick="selectOpt(this, '🟢 [OPINIÓN] Observación: El script es de muy mala calidad', 'green')">1. Mala calidad</button>
+                <button class="option-btn" onclick="selectOpt(this, '🟢 [OPINIÓN] Nota: Faltan funciones básicas en este script', 'green')">2. Faltan funciones básicas</button>
+                <button class="option-btn" onclick="selectOpt(this, '🟢 [OPINIÓN] Detalle: El menú es incómodo de usar', 'green')">3. Menú incómodo</button>
+                <button class="option-btn" onclick="selectOpt(this, '🟢 [OPINIÓN] Observación: No cumple lo que promete', 'green')">4. No cumple lo que promete</button>
+                <button class="option-btn" onclick="selectOpt(this, '🟢 [OPINIÓN] Nota: Hay mejores opciones para este juego', 'green')">5. Hay opciones mejores</button>
+            </div>
+
+            <!-- CAMPO DE DETALLES EXTRA (SE MUESTRA AL SELECCIONAR UNA OPCIÓN) -->
+            <div id="extra-details" class="details-area hidden">
+                <label style="font-size:.8rem;color:#8b949e;font-weight:700">Detalles adicionales (Opcional):</label>
+                <textarea id="custom-text" placeholder="Escribe detalles sobre el problema..." oninput="handleTextFilter(this)"></textarea>
+            </div>
+
+            <button class="btn btn-red" style="width:100%;padding:12px;margin-top:6px" onclick="sendReport()">ENVIAR REPORTE A DISCORD</button>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID="1Ijxd38344GIdnPBK1693SLE7KmOxy59CTorchrxe5og";
+        const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&cachebuster=`+Date.now();
+        
+        // WEBHOOK CONECTADO DIRECTAMENTE
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1562569258368770128/ppnSh8eoHlmkPXjlHgulR-AhrTDqNa1aJLr04aRVmhgv10afBt81xErPl3NOwEEe7CCm";
+
+        // LISTA DE GROSERÍAS A CENSURAR AUTOMÁTICAMENTE
+        const BAD_WORDS = ["mierda","puta","puto","pendejo","pendeja","carajo","verga","maldito","maldita","estupido","estupida","bastardo","hijo de puta","gonorrea","cabron","cabrona","coño","mamaguevo","maricon","chupa"];
+
+        const store={};
+        let selectedScript=null;
+        let selectedText="";
+        let selectedSev="red";
+
+        function clean(v){return v?v.trim().replace(/^"|"$/g,'').replace(/""/g,'"'):""}
+
+        function processImgUrl(url){
+            if(!url)return"";
+            url=url.trim();
+            if(url.includes("drive.google.com")){
+                const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/)||url.match(/id=([a-zA-Z0-9_-]+)/);
+                if(m&&m[1])return`https://drive.google.com/uc?export=view&id=${m[1]}`;
+            }
+            return url;
+        }
+
+        async function init(){
+            try{
+                const res=await fetch(CSV_URL);
+                const text=await res.text();
+                const rows=text.split("\n");
+
+                let idCounter=0;
+                rows.slice(1).forEach(row=>{
+                    const cols=row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if(cols.length<3)return;
+
+                    let name=clean(cols[0]),rawImg=clean(cols[1]),imgUrl=processImgUrl(rawImg);
+                    let code=clean(cols[2]),ver=clean(cols[3]);
+                    if(!name||!code)return;
+
+                    const id="s"+(++idCounter);
+                    const isPrem=ver.toLowerCase().includes("premium");
+
+                    store[id]={id,name,isPrem};
+
+                    const card=document.createElement("div");
+                    card.className="card";
+                    card.onclick=()=>openReport(id);
+
+                    const imgTag=imgUrl?`<img src="${imgUrl}" alt="${name}" referrerpolicy="no-referrer" onerror="this.style.display='none'">`:'';
+
+                    card.innerHTML=`${imgTag}<div class="card-title">${name}</div><span class="badge ${isPrem?'badge-prem':'badge-norm'}">${isPrem?'PREMIUM':'NORMAL'}</span><span class="badge badge-rep">HACER REPORTE</span>`;
+
+                    document.getElementById(isPrem?"list-prem":"list-free").appendChild(card);
+                });
+
+            }catch(e){
+                document.getElementById("list-free").innerHTML="<p style='text-align:center;color:#f85149;'>Error al cargar los scripts.</p>";
+            }
+        }
+
+        function switchTab(type){
+            document.getElementById("list-free").classList.toggle("hidden",type!=='free');
+            document.getElementById("list-prem").classList.toggle("hidden",type!=='prem');
+            document.getElementById("tb-free").className="tab-btn "+(type==='free'?'active':'');
+            document.getElementById("tb-prem").className="tab-btn "+(type==='prem'?'active-prem':'');
+        }
+
+        function switchSev(sev){
+            selectedSev=sev;
+            document.getElementById("sev-red").classList.toggle("active", sev==='red');
+            document.getElementById("sev-yellow").classList.toggle("active", sev==='yellow');
+            document.getElementById("sev-green").classList.toggle("active", sev==='green');
+
+            document.getElementById("grid-red").classList.toggle("hidden", sev!=='red');
+            document.getElementById("grid-yellow").classList.toggle("hidden", sev!=='yellow');
+            document.getElementById("grid-green").classList.toggle("hidden", sev!=='green');
+        }
+
+        function openReport(id){
+            selectedScript=store[id];
+            if(!selectedScript)return;
+            selectedText="";
+            document.querySelectorAll('.option-btn').forEach(b=>{
+                b.classList.remove('selected-red','selected-yellow','selected-green');
+            });
+            document.getElementById("custom-text").value="";
+            document.getElementById("extra-details").classList.add("hidden");
+            document.getElementById("rep-title").innerText="Reportar: "+selectedScript.name;
+            document.getElementById("app-screen").classList.add("hidden");
+            document.getElementById("report-screen").classList.remove("hidden");
+            switchSev('red');
+            window.scrollTo(0,0);
+        }
+
+        function closeReport(){
+            document.getElementById("report-screen").classList.add("hidden");
+            document.getElementById("app-screen").classList.remove("hidden");
+        }
+
+        function selectOpt(btn, text, sev){
+            document.querySelectorAll('.option-btn').forEach(b=>{
+                b.classList.remove('selected-red','selected-yellow','selected-green');
+            });
+            btn.classList.add('selected-'+sev);
+            selectedText=text;
+
+            document.getElementById("extra-details").classList.remove("hidden");
+        }
+
+        function handleTextFilter(el){
+            let val = el.value;
+            BAD_WORDS.forEach(word => {
+                let reg = new RegExp(word, "gi");
+                val = val.replace(reg, "****");
+            });
+            el.value = val;
+        }
+
+        async function sendReport(){
+            if(!selectedText){
+                alert("Por favor selecciona una opción de reporte.");
+                return;
+            }
+
+            let extraMsg = document.getElementById("custom-text").value.trim();
+
+            let colorHex = 16711680; // Rojo
+            if(selectedSev === 'yellow') colorHex = 16766720; // Amarillo
+            if(selectedSev === 'green') colorHex = 3066993; // Verde
+
+            let descriptionText = `**Script:** ${selectedScript.name}\n**Motivo:** ${selectedText}`;
+            if(extraMsg){
+                descriptionText += `\n**Detalles extra:** ${extraMsg}`;
+            }
+
+            const payload = {
+                embeds: [{
+                    title: "🚨 Nuevo Reporte de Script",
+                    description: descriptionText,
+                    color: colorHex,
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                alert("¡Reporte enviado a Discord con éxito!");
+            } catch(e) {
+                alert("Error al enviar el reporte a Discord.");
+            }
+
+            closeReport();
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
